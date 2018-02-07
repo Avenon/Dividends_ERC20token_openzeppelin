@@ -46,6 +46,10 @@ contract Crowdsale is Ownable {
     // количество наших инвесторов
     uint sharesCount;
 
+    // Переменная в которой будет храниться дата выплаты дивидендов, будет
+    // обновляться после каждой выплаты (в нашем случае через каждые 18 месяцев)
+    uint public startPayPeriodDividends;
+
     // Будем в мэппинг записывать наших держателей
     mapping (uint => address) shareholders;
 
@@ -63,6 +67,10 @@ contract Crowdsale is Ownable {
         // это проверять
         period = 12;
         periodDividends = 18;
+
+        // Инициализируем переменную датой, раньше которой дивиденды не могут
+        // быть уплачены
+        startPayPeriodDividends = start + period * 1 days + (1 years + (1 years / 2));
         // Пусть для нашего ico необходима сумма в 100 эфиров, при достижении
         // этой суммы прекращаем продажу токенов
         hardcap = 100 * (10 ** 18);
@@ -76,8 +84,10 @@ contract Crowdsale is Ownable {
 
     // В данном модификаторе будем проверять, что с момента окончания ico
     // прошло достаточное количества месяцев для выплаты дивидендов
+    // Проверямем, что дата выплаты наступила
     modifier periodDividendsIsOn() {
-        require(now > (start + period * 1 days) + (1 years + (1 years / 2)));
+        //require(now > (start + period * 1 days) + (1 years + (1 years / 2)));
+        require(now > startPayPeriodDividends);
         _;
     }
 
@@ -129,6 +139,8 @@ contract Crowdsale is Ownable {
             }
             Dividends(shareholders[i], dividends);
         }
+        // Обновляем дату выплаты дивидендов до следующей выплаты
+        startPayPeriodDividends = startPayPeriodDividends + (1 years + (1 years / 2));
     }
 
 }
