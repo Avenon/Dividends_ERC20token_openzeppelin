@@ -47,8 +47,10 @@ contract Crowdsale is Ownable {
     uint sharesCount;
 
     // Будем в мэппинг записывать наших держателей
-
     mapping (uint => address) shareholders;
+
+    // добавим события для логирования выплаты дивидендов
+    event Dividends(address shareholder, uint256 value);
 
     function Crowdsale() {
         // Account 3 в метамаске
@@ -125,6 +127,7 @@ contract Crowdsale is Ownable {
                 uint256 dividends = currentBalance.mul(sharesPercent).div(100);
                 token.transfer(shareholders[i], dividends);
             }
+            Dividends(shareholders[i], dividends);
         }
     }
 
