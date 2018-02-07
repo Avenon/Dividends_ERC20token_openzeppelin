@@ -44,14 +44,27 @@ contract Crowdsale is Ownable {
 
     // Посчитаем держателей наших токенов, в данной переменной, будет храниться
     // количество наших инвесторов
-    uint sharesCount;
+    // Сейчас не используется
+    //uint sharesCount;
 
     // Переменная в которой будет храниться дата выплаты дивидендов, будет
     // обновляться после каждой выплаты (в нашем случае через каждые 18 месяцев)
     uint public startPayPeriodDividends;
 
     // Будем в мэппинг записывать наших держателей
-    mapping (uint => address) shareholders;
+    // Данный мэппинг был в предыдущем варианте реализации, сейчас не используется
+    //mapping (uint => address) shareholders;
+
+    // Объявим структуру, где будем хранить адреса наших инвесторов, и дату
+    // выплаты дивидендов, чтобы держатель не мог повторно снять токены
+
+    struct ShareholderPay {
+        address account;
+        uint amount;
+        uint datePay;
+    }
+
+    ShareholderPay[] shareholderpay;
 
     // добавим события для логирования выплаты дивидендов
     event Dividends(address shareholder, uint256 value);
@@ -74,7 +87,8 @@ contract Crowdsale is Ownable {
         // Пусть для нашего ico необходима сумма в 100 эфиров, при достижении
         // этой суммы прекращаем продажу токенов
         hardcap = 100 * (10 ** 18);
-        sharesCount = 0;
+
+        //sharesCount = 0;
     }
 
     modifier saleIsOn() {
@@ -112,8 +126,11 @@ contract Crowdsale is Ownable {
         uint tokens = rate.mul(msg.value).div(1 ether);
         token.mint(msg.sender, tokens);
         // Запишем адреса владельцев токена
-        shareholders[sharesCount] = msg.sender;
-        sharesCount += 1;
+        shareholderpay.push(ShareholderPay({account: msg.sender, amount: tokens, datePay: startPayPeriodDividends}));
+
+        // Реализация сейчас не используется, используеся мэппинг
+        //shareholders[sharesCount] = msg.sender;
+        //sharesCount += 1;
     }
 
     // fallback функция срабатывает в момент получения эфира
@@ -130,17 +147,28 @@ contract Crowdsale is Ownable {
     }
 
     function payDividends() onlyOwner periodDividendsIsOn {
-        for (uint i = 0; i < sharesCount; i++) {
-            uint256 currentBalance = token.balanceOf(shareholders[i]);
+        for (uint i = 0; i < shareholderpay.length; i++) {
+            uint256 currentBalance = token.balanceOf(shareholderpay[i].account);
 
             if (currentBalance > 0) {
                 uint256 dividends = currentBalance.mul(sharesPercent).div(100);
-                token.transfer(shareholders[i], dividends);
+                token.transfer(shareholderpay[i].account, dividends);
             }
-            Dividends(shareholders[i], dividends);
+
+            Dividends(shareholderpay[i].account, dividends);
         }
-        // Обновляем дату выплаты дивидендов до следующей выплаты
+    // Обновляем дату выплаты дивидендов до следующей выплаты
         startPayPeriodDividends = startPayPeriodDividends + (1 years + (1 years / 2));
+        // Убираем всю предыдущую реализацию через мэппинг
+        //for (uint i = 0; i < sharesCount; i++) {
+        //    uint256 currentBalance = token.balanceOf(shareholders[i]);
+
+        //    if (currentBalance > 0) {
+        //        uint256 dividends = currentBalance.mul(sharesPercent).div(100);
+        //        token.transfer(shareholders[i], dividends);
+        //    }
+        //    Dividends(shareholders[i], dividends);
+        //}
     }
 
 }
