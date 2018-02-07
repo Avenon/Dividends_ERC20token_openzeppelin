@@ -75,7 +75,7 @@ contract Crowdsale is Ownable {
     // В данном модификаторе будем проверять, что с момента окончания ico
     // прошло достаточное количества месяцев для выплаты дивидендов
     modifier periodDividendsIsOn() {
-        require(now > (start + period * 1 days) + (1 years + (1 years / 2));
+        require(now > (start + period * 1 days) + (1 years + (1 years / 2)));
         _;
     }
 
