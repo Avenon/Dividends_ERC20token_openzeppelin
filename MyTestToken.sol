@@ -99,6 +99,7 @@ contract Crowdsale is Ownable {
         // токенов, например для присланных 10 эфиров будет выпущено 100 токенов
         uint tokens = rate.mul(msg.value).div(1 ether);
         token.mint(msg.sender, tokens);
+        // Запишем адреса владельцев токена
         shareholders[sharesCount] = msg.sender;
         sharesCount += 1;
     }
