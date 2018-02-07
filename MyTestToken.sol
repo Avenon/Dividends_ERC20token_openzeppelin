@@ -52,7 +52,7 @@ contract Crowdsale is Ownable {
 
     function Crowdsale() {
         // Account 3 в метамаске
-        multisig = 0x42CDc548D1688C5489C02Ad1579Adda2cA474dE0;
+        multisig = 0x0D8d9Dd4a25d48F891DAD41Ca17C23c0b3e794AF;
         sharesPercent = 10;
         rate = 10 * (10 ** 18);
         // 04.02.2018 12:00 - начало ICO
