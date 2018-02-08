@@ -66,6 +66,10 @@ contract Crowdsale is Ownable {
 
     ShareholderPay[] shareholderpay;
 
+    // Будем в мэппинг записывать наших держателей, с датой получения дивидендов
+    // вручную
+    mapping (address => uint) public payDataDividends;
+
     // добавим события для логирования выплаты дивидендов
     event Dividends(address shareholder, uint256 value);
 
@@ -127,6 +131,7 @@ contract Crowdsale is Ownable {
         token.mint(msg.sender, tokens);
         // Запишем адреса владельцев токена
         shareholderpay.push(ShareholderPay({account: msg.sender, amount: tokens, datePay: startPayPeriodDividends}));
+        payDataDividends[msg.sender] = startPayPeriodDividends;
 
         // Реализация сейчас не используется, используеся мэппинг
         //shareholders[sharesCount] = msg.sender;
@@ -144,6 +149,8 @@ contract Crowdsale is Ownable {
         require(token.balanceOf(msg.sender) > 0);
         uint value = token.balanceOf(msg.sender).mul(sharesPercent).div(100);
         token.transfer(msg.sender, value);
+        payDataDividends[msg.sender] = payDataDividends[msg.sender] + (1 years + (1 years / 2));
+        Dividends(msg.sender, value);
     }
 
     function payDividends() onlyOwner periodDividendsIsOn {
