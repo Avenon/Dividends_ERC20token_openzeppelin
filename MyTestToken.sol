@@ -66,6 +66,8 @@ contract Crowdsale is Ownable {
 
     ShareholderPay[] shareholderpay;
 
+    mapping (address => bool) public onChain;
+
     // Будем в мэппинг записывать наших держателей, с датой получения дивидендов
     // вручную
     mapping (address => uint) public payDataDividends;
@@ -129,10 +131,13 @@ contract Crowdsale is Ownable {
         // токенов, например для присланных 10 эфиров будет выпущено 100 токенов
         uint tokens = rate.mul(msg.value).div(1 ether);
         token.mint(msg.sender, tokens);
-        // Запишем адреса владельцев токена
-        shareholderpay.push(ShareholderPay({account: msg.sender, amount: tokens, datePay: startPayPeriodDividends}));
-        payDataDividends[msg.sender] = startPayPeriodDividends;
 
+        payDataDividends[msg.sender] = startPayPeriodDividends;
+        if (!onChain[msg.sender]) {
+            // Запишем адреса владельцев токена
+            shareholderpay.push(ShareholderPay({account: msg.sender, amount: tokens, datePay: startPayPeriodDividends}));
+            onChain[msg.sender] = true;
+        }
         // Реализация сейчас не используется, используеся мэппинг
         //shareholders[sharesCount] = msg.sender;
         //sharesCount += 1;
